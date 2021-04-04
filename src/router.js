@@ -40,14 +40,6 @@ module.exports = class Router {
       }
     }
 
-    return {
-      params: null,
-      function: function() {
-        return new Response(null, {
-          status: 404,
-          statusText: 'Not Found',
-        });
-      },
-    };
+    return null;
   }
 };

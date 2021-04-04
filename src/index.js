@@ -44,11 +44,27 @@ exports.handlers = {
   },
 };
 
+function corsHeaders() {
+  const ch = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET,HEAD,POST,OPTIONS',
+    'Access-Control-Allow-Headers': '*',
+    'Access-Control-Max-Age': '600',
+  };
+  return Object.assign({}, ch);
+}
+
+function returnCorsHeaders(context) {
+  return new Response('cors!', {
+    headers: corsHeaders(),
+  });
+}
+
 function JsonResponse(object) {
   return new Response(JSON.stringify(object), {
     headers: {
-      'Content-Type': 'application/json'
-    }
+      'Content-Type': 'application/json',
+    },
   });
 }
 
@@ -56,7 +72,16 @@ async function handleRequest(request, env) {
   var routeAndParams = router.matchRouteAndParams(request);
 
   if (!routeAndParams) {
-    return new Response(null, { status: 400, statusText: 'Not Found' });
+    // we are enabling cors fully - any options request not explicitly matched
+    // will get this...
+
+    if (request.method.toLowerCase() === 'options') {
+      return new Response('CORS!!!', {
+        headers: corsHeaders(),
+      });
+    }
+
+    return new Response(null, { status: 404, statusText: 'Not Found' });
   }
 
   var context = {
@@ -74,25 +99,38 @@ async function handleRequest(request, env) {
 
   const pipeline = routeAndParams.pipeline;
 
-  for (let i=0; i < pipeline.length; i++) {
-    const pl = pipeline[i];
-    const response = await pl(context);
-    if (response) {
-      return response;
+  if (Array.isArray(pipeline) && pipeline.length > 0) {
+    for (let i = 0; i < pipeline.length; i++) {
+      const pl = pipeline[i];
+      const response = await pl(context);
+      if (response) {
+        return response;
+      }
     }
   }
-  
+
   var response = await routeAndParams.function(context);
 
+  // prep the corsHeaders (a copy)
+  const headers = corsHeaders();
+
   if (response instanceof Response) {
+    // copy CORS headers
+    const ch = corsHeaders();
+    Object.keys(ch).forEach(k => response.headers.append(k, ch[k]));
+
     return response;
   } else if (typeof response === 'object') {
+    headers['Content-Type'] = 'application/json';
+
     return new Response(JSON.stringify(response), {
-      headers: { 'content-type': 'text/JSON' },
+      headers: headers,
     });
   } else {
+    headers['Content-Type'] = 'text/plain';
+
     return new Response(response, {
-      headers: { 'content-type': 'text/plain' },
+      headers: headers,
     });
   }
 }

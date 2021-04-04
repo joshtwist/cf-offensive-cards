@@ -21,6 +21,7 @@ const dealCards = game => {
 };
 
 export default class Game {
+
   async createGame(context) {
     /*
     expected payload:
@@ -89,7 +90,14 @@ export default class Game {
 
     const data = await sh.putGame(game);
 
-    return data;
+    const response = new Response(JSON.stringify(data), {
+      headers: {
+        'Content-Type': 'application/json',
+        'cards-userId': player.id,
+      },
+    });
+
+    return response;
   }
 
   async getPlayerState(context) {
