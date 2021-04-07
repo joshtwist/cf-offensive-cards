@@ -121,6 +121,7 @@ export default class Game {
     const game = {
       id: gameId,
       created: new Date().toISOString(),
+      minimumPlayers: 2,
       state: 'NotStarted',
       players: [player],
       submissions: [],
@@ -133,7 +134,7 @@ export default class Game {
         celebrationId: -1,
       },
     };
-x
+
     const cards = new Cards(context.env);
     cards.initializeFromSource();
     cards.shuffleCards();
@@ -271,9 +272,8 @@ x
       return sh.createValidationError('Game can only be started by the game owner');
     }
 
-    // TODO - this needs to be 3 eventually
-    if (game.players.length < 2) {
-      return sh.createValidationError('You need at least 2 players to start');
+    if (game.players.length < game.minimumPlayers) {
+      return sh.createValidationError(`You need at least ${game.minPlayers} players to start`);
     }
 
     // TODO - do all the work with the deck etc
