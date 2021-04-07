@@ -21,7 +21,6 @@ const dealCards = game => {
 };
 
 export default class Game {
-
   async createGame(context) {
     /*
     expected payload:
@@ -171,14 +170,14 @@ export default class Game {
     const sh = new StorageHelp(context.env);
 
     if (!context.params.gameId) {
-      return sh.createValidationError(`No gameId found`)
+      return sh.createValidationError(`No gameId found`);
     }
-  
+
     const gameId = context.params.gameId;
     const game = await sh.getGame(gameId);
     context.custom.game = game;
   }
-  
+
   async ensureAndLoadUser(context) {
     const sh = new StorageHelp(context.env);
     const userId = context.request.headers.get(userHeader);
@@ -215,8 +214,9 @@ export default class Game {
       return sh.createValidationError('Game can only be started by the game owner');
     }
 
-    if (game.players.length < 3) {
-      return sh.createValidationError('You need at least 3 players to start');
+    // TODO - this needs to be 3 eventually
+    if (game.players.length < 2) {
+      return sh.createValidationError('You need at least 2 players to start');
     }
 
     // TODO - do all the work with the deck etc
@@ -266,7 +266,8 @@ export default class Game {
 
     const card = currentPlayer.cards[index];
     game.submissions.push({
-      card: card,
+      id: sh.newUniqueId(),
+      cardId: card,
       playerIndex: game.players.indexOf(currentPlayer),
     });
     currentPlayer.submitted = true;
@@ -285,7 +286,7 @@ export default class Game {
     expected payload
     
     {
-      winningSubmissionIndex: 4
+      winningSubmissionId: 'slajfsdlkafdjslkjflkjalfkdjdkfs'
     }
 
     */
@@ -298,19 +299,19 @@ export default class Game {
       return sh.createValidationError(`Cannot pick a winner during ${game.state} stage.`);
     }
 
-    if (isNaN(context.body.winningSubmissionIndex)) {
-      return sh.createValidationError('No `winningSubmissionIndex` property found');
+    if (!context.body.winningSubmissionId) {
+      return sh.createValidationError('No `winningSubmissionId` property found');
     }
     if (currentPlayer.id !== game.players[game.currentJudgeIndex].id) {
       return sh.createValidationError(`Only judges can pick a winner, you're not the judge this round.`);
     }
 
-    const wsi = context.body.winningSubmissionIndex;
-
-    if (wsi < 0 || wsi > game.submissions.length - 1) {
-      return sh.createValidationError(`${wsi} is an invalid submission index.`);
+    const wsid = context.body.winningSubmissionId;
+    const matchingSubmissions = game.submissions.filter(s => s.id === wsid);
+    if (matchingSubmissions.length !== 1) {
+      return sh.createValidationError(`Invalid ${wsid}, it matched ${matchingSubmissions.length} submissions.`);
     }
-    const winningSubmission = game.submissions[context.body.winningSubmissionIndex];
+    const winningSubmission = matchingSubmissions[0];
     const winningPlayer = game.players[winningSubmission.playerIndex];
     winningPlayer.score++;
     game.lastRound.winningPlayerIndex = winningSubmission.playerIndex;

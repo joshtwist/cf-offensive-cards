@@ -49,15 +49,10 @@ function corsHeaders() {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET,HEAD,POST,OPTIONS',
     'Access-Control-Allow-Headers': '*',
+    'Access-Control-Expose-Headers': '*',
     'Access-Control-Max-Age': '600',
   };
   return Object.assign({}, ch);
-}
-
-function returnCorsHeaders(context) {
-  return new Response('cors!', {
-    headers: corsHeaders(),
-  });
 }
 
 function JsonResponse(object) {
@@ -76,7 +71,7 @@ async function handleRequest(request, env) {
     // will get this...
 
     if (request.method.toLowerCase() === 'options') {
-      return new Response('CORS!!!', {
+      return new Response(null, {
         headers: corsHeaders(),
       });
     }
