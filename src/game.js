@@ -121,7 +121,7 @@ export default class Game {
     const game = {
       id: gameId,
       created: new Date().toISOString(),
-      minimumPlayers: 2,
+      minimumPlayers: context.body.minimumPlayers || 3,
       state: 'NotStarted',
       players: [player],
       submissions: [],
