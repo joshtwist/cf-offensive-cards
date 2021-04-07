@@ -20,6 +20,62 @@ const dealCards = game => {
   }
 };
 
+function winnerGif() {
+  var urls = [
+    "https://media.giphy.com/media/6oMKugqovQnjW/giphy.gif",
+    "https://media.giphy.com/media/5Yl08OSg4AckeNHpDc/giphy.gif",
+    "https://media.giphy.com/media/ddHhhUBn25cuQ/giphy.gif",
+    "https://media.giphy.com/media/YTbZzCkRQCEJa/giphy.gif",
+    "https://media.giphy.com/media/87NS05bya11mg/giphy.gif",
+    "https://media.giphy.com/media/8j3CTd8YJtAv6/giphy.gif",
+    "https://media.giphy.com/media/jzaZ23z45UxK8/giphy.gif",
+    "https://media.giphy.com/media/13hxeOYjoTWtK8/giphy.gif",
+    "https://media.giphy.com/media/zQLjk9d31jlMQ/giphy.gif",
+    "https://media.giphy.com/media/Bl10664xbIVkk/giphy.gif",
+    "https://media.giphy.com/media/4ci8d3rJNrdAY/giphy.gif",
+    "https://media.giphy.com/media/PhNgTdjTzXULbKfCnI/giphy.gif",
+    "https://media.giphy.com/media/JrLxgem3knPxCTx7Ux/giphy.gif",
+    "https://media.giphy.com/media/MZpxwpavVlCE2sRWK3/giphy.gif",
+    "https://media.giphy.com/media/K9MPm9A3CaSkw/giphy.gif",
+    "https://media.giphy.com/media/7aRG17VMgsGek/giphy.gif",
+    "https://media.giphy.com/media/6Yp3H44rgBHZm/giphy.gif",
+    "https://media.giphy.com/media/l44Q6Etd5kdSGttXa/giphy.gif",
+    "https://media.giphy.com/media/KEVNWkmWm6dm8/giphy.gif",
+    "https://media.giphy.com/media/3ohryhNgUwwZyxgktq/giphy.gif",
+    "https://media.giphy.com/media/6brH8dM3zeMyA/giphy.gif",
+    "https://media.giphy.com/media/rhfxbPtm4m5uo/giphy.gif",
+    "https://media.giphy.com/media/1zkMbX7k4nd1AM4i4k/giphy.gif",
+    "https://media.giphy.com/media/xT1R9D4BTqrv8nXig0/giphy.gif",
+    "https://media.giphy.com/media/dUYf5sSU3qVRCCZMSz/giphy.gif",
+    "https://media.giphy.com/media/nqi89GMgyT3va/giphy.gif",
+    "https://media.giphy.com/media/UWEcHpY9k3rxe/giphy.gif",
+    "https://media.giphy.com/media/3ohzdX7Wzbebc3Y0qA/giphy.gif",
+    "https://media.giphy.com/media/3oz8xDLuiN1GcDA3xC/giphy.gif",
+    "https://media.giphy.com/media/UdckZOAQrtXMI/giphy.gif",
+    "https://media.giphy.com/media/kmqCVSHi5phMk/giphy.gif",
+    "https://media.giphy.com/media/ngyRZcPbJim4g/giphy.gif",
+    "https://media.giphy.com/media/xMIlfwRRQNEcw/giphy.gif",
+    "https://media.giphy.com/media/EWWdvQngcLt6g/giphy.gif",
+    "https://media.giphy.com/media/26u4cqiYI30juCOGY/giphy.gif",
+    "https://media.giphy.com/media/ReyXCAwJYFm9rb2HxD/giphy.gif",
+    "https://media.giphy.com/media/3rXna9rZacY8RUvgTO/giphy.gif",
+    "https://media.giphy.com/media/7J7lD2hdRbuxACr6f8/giphy.gif",
+    "https://media.giphy.com/media/gEvxDHigKYErhWpQmt/giphy.gif",
+    "https://media.giphy.com/media/3ocosrDjgxHDPDqVIA/giphy.gif",
+    "https://media.giphy.com/media/W0cDzGKbC1Oh3NqlgX/giphy.gif",
+    "https://media.giphy.com/media/skmziDEEjiin6/giphy.gif",
+    "https://media.giphy.com/media/26uTrC4SJaczkWqmQ/giphy.gif",
+    "https://media.giphy.com/media/fZ1gAEXeCV8F2tAjYr/giphy.gif",
+    "https://media.giphy.com/media/IbaY786fr0miugw2Pk/giphy.gif",
+    "https://media.giphy.com/media/26AHAw0aMmWwRI4Hm/giphy.gif",
+    "https://media.giphy.com/media/l5cjzhHD43vZS/giphy.gif",
+    "https://media.giphy.com/media/xHMIDAy1qkzNS/giphy.gif",
+    "https://media.giphy.com/media/26BRBKqUiq586bRVm/giphy.gif",
+  ];
+
+  return urls[Math.floor(Math.random() * urls.length)];
+}
+
 export default class Game {
   async createGame(context) {
     /*
@@ -316,8 +372,8 @@ export default class Game {
     winningPlayer.score++;
     game.lastRound.winningPlayerIndex = winningSubmission.playerIndex;
     game.lastRound.blackCard = game.currentBlackCard;
-    game.lastRound.whiteCard = winningSubmission.card;
-    game.lastRound.celebrationId = -1; // TODO pick random gif
+    game.lastRound.whiteCard = winningSubmission.cardId;
+    game.lastRound.gifUrl = winnerGif();
 
     game.players.forEach(p => {
       p.submitted = false;
