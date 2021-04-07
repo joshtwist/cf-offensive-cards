@@ -120,6 +120,7 @@ export default class Game {
 
     const game = {
       id: gameId,
+      created: new Date().toISOString(),
       state: 'NotStarted',
       players: [player],
       submissions: [],
@@ -132,7 +133,7 @@ export default class Game {
         celebrationId: -1,
       },
     };
-
+x
     const cards = new Cards(context.env);
     cards.initializeFromSource();
     cards.shuffleCards();
