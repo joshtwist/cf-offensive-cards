@@ -77,6 +77,11 @@ function winnerGif() {
 }
 
 export default class Game {
+
+  constructor() {
+
+  }
+
   async createGame(context) {
     /*
     expected payload:
@@ -85,7 +90,9 @@ export default class Game {
         player: {
             name: "Nathan Totten",
             short: "NT"
-        }
+        },
+        minimumPlayers: 2
+
     }
     */
 
@@ -453,5 +460,10 @@ export default class Game {
       whiteCards: cards.whiteCards,
     };
     return data;
+  }
+
+  async initiateWebSocket(context) {
+    const sh = new StorageHelp(context.env);
+    return await sh.initiateWebSocket(context.params.gameId, context.request);
   }
 }

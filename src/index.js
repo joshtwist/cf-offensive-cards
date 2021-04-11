@@ -10,6 +10,7 @@ import Game from './game.js';
 const game = new Game();
 
 router.addRoute('GET', '/', () => 'Welcome');
+router.addRoute('GET', '/websocket/:gameId', game.initiateWebSocket);
 router.addRoute('GET', '/cards', game.getCards);
 router.addRoute('POST', '/games', game.createGame);
 router.addRoute('GET', '/games/:gameId', game.getPlayerState, [game.loadGame]);
@@ -26,6 +27,18 @@ exports.handlers = {
       let response = await handleRequest(request, env);
       return response;
     } catch (err) {
+      // handle web sockets differently
+      if (request.headers.get('Upgrade') == 'websocket') {
+        // Annoyingly, if we return an HTTP error in response to a WebSocket request, Chrome devtools
+        // won't show us the response body! So... let's send a WebSocket response with an error
+        // frame instead.
+        let pair = new WebSocketPair();
+        pair[1].accept();
+        pair[1].send(JSON.stringify({ error: err.stack, message: err.message }));
+        pair[1].close(1011, 'Uncaught exception during session setup');
+        return new Response(null, { status: 101, webSocket: pair[0] });
+      }
+
       console.error('ERROR', err);
       console.error(err.description);
       console.error(err.stack);
@@ -110,9 +123,11 @@ async function handleRequest(request, env) {
   const headers = corsHeaders();
 
   if (response instanceof Response) {
-    // copy CORS headers
-    const ch = corsHeaders();
-    Object.keys(ch).forEach(k => response.headers.append(k, ch[k]));
+    // copy CORS headers if not websocket
+    if (request.headers.get('upgrade') !== 'websocket') {
+      const ch = corsHeaders();
+      Object.keys(ch).forEach(k => response.headers.append(k, ch[k]));
+    }
 
     return response;
   } else if (typeof response === 'object') {

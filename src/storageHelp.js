@@ -33,6 +33,13 @@ export default class StorageHelp {
     return data;
   }
 
+  async initiateWebSocket(gameId, request) {
+    let id = this.GAMESTORAGE.idFromString(gameId);
+    let object = await this.GAMESTORAGE.get(id);
+
+    return await object.fetch(request);
+  }
+
   createValidationError(message) {
     return new Response(message, {
       status: 400,
