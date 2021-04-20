@@ -1,4 +1,4 @@
-name = "cf_cards"
+name = "cfcards"
 # type = "javascript" is required to use the `[build]` section
 type = "javascript"
 account_id = "0ad2c9e474036a9096bdfa9f25fa4eb2"

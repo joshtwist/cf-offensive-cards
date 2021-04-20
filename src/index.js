@@ -55,12 +55,17 @@ exports.handlers = {
   },
 };
 
-function corsHeaders() {
+function corsHeaders(request) {
+  
+  const origin = request.headers.get("origin") || '*';
+
   const ch = {
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Methods': 'GET,HEAD,POST,OPTIONS',
-    'Access-Control-Allow-Headers': '*',
-    'Access-Control-Expose-Headers': '*',
+    'Access-Control-Allow-Headers':
+      'cards-userId, Accept-Language, Content-Type, User-Agent, Accept, Origin, X-Requested-With',
+    'Access-Control-Expose-Headers': 'cards-userId, Content-Type',
+    'Access-Control-Allow-Credentials': 'true',
     'Access-Control-Max-Age': '600',
   };
   return Object.assign({}, ch);
@@ -83,7 +88,7 @@ async function handleRequest(request, env) {
 
     if (request.method.toLowerCase() === 'options') {
       return new Response(null, {
-        headers: corsHeaders(),
+        headers: corsHeaders(request),
       });
     }
 
@@ -118,12 +123,12 @@ async function handleRequest(request, env) {
   var response = await routeAndParams.function(context);
 
   // prep the corsHeaders (a copy)
-  const headers = corsHeaders();
+  const headers = corsHeaders(request);
 
   if (response instanceof Response) {
     // copy CORS headers if not websocket
     if (request.headers.get('upgrade') !== 'websocket') {
-      const ch = corsHeaders();
+      const ch = corsHeaders(request);
       Object.keys(ch).forEach(k => response.headers.append(k, ch[k]));
     }
 
