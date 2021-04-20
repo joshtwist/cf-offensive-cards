@@ -79,11 +79,39 @@ function winnerGif() {
 export default class Game {
 
   constructor() {
+    this.joinGame = this.retryWrap(5, this.joinGame);
+    this.submitCard = this.retryWrap(5, this.submitCard);
+    this.redeal = this.retryWrap(5, this.redeal);
+  }
 
+  retryWrap(count, fn) {
+    const wrapper = async (context) => {
+      let remainingRetryCount = 5;
+
+      while (remainingRetryCount > 0) {
+        try {
+          return await fn(context);
+        }
+        catch (err) {
+          if (err instanceof ConflictError) {
+            // reload game and run logic again
+            context.custom.game = await sh.getGame(context.params.gameId);
+            remainingRetryCount--;
+          }
+          else {
+            throw err;
+          }
+        }
+      }
+      
+      throw new ConflictError('Retries exhausted')
+    }
+
+    return wrapper;
   }
 
   async createGame(context) {
-    /*
+    /* 
     expected payload:
 
     {
@@ -450,6 +478,12 @@ export default class Game {
     currentPlayer.redealsLeft--;
 
     return await sh.putGame(game);
+  }
+
+  async testPut(context) {
+    const sh = new StorageHelp(context.env);
+    const game = context.custom.game;
+    return await sh.putGame(context.body);
   }
 
   async getCards(context) {

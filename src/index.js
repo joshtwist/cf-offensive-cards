@@ -20,6 +20,7 @@ router.addRoute('POST', '/games/:gameId/submit', game.submitCard, [game.loadGame
 router.addRoute('POST', '/games/:gameId/pickWinner', game.pickWinner, [game.loadGame, game.ensureAndLoadUser]);
 router.addRoute('POST', '/games/:gameId/nextRound', game.nextRound, [game.loadGame, game.ensureAndLoadUser]);
 router.addRoute('POST', '/games/:gameId/redeal', game.redeal, [game.loadGame, game.ensureAndLoadUser]);
+router.addRoute('POST', '/~/games/:gameId/testPut', game.testPut, [game.loadGame]);
 
 exports.handlers = {
   async fetch(request, env) {
@@ -39,15 +40,12 @@ exports.handlers = {
         return new Response(null, { status: 101, webSocket: pair[0] });
       }
 
-      console.error('ERROR', err);
-      console.error(err.description);
-      console.error(err.stack);
-      var errHtml = '<p>';
-      errHtml += err.description;
-      errHtml += '<p>';
-      errHtml += err.stack;
-      errHtml += '<p>';
-      errHtml += err.message;
+      const errHtml = `<p>Message: ${err.message}</p>
+      <p>Name: ${err.name}</p>
+      <p>Stack: ${err.stack}</p>
+      <p>File Name: ${err.fileName}</p>
+      <p>Line Number: ${err.lineNumber}</p>
+      <p>Column Number: ${err.columnNumber}</p>`;
       return new Response(errHtml, {
         status: 500,
         statusText: 'Internal Server Error',

@@ -36,32 +36,40 @@ module.exports = class GameStorage {
     const clientId = request.headers.get('cards-userId');
 
     // handle web sockets
-    if (url.pathname.startsWith("/websocket"))
+    if (url.pathname.startsWith("/websocket")) {
       return this.wsh.handleWebSocketUpgrade(request, clientId);
+    }
 
     switch (url.pathname) {        
       case '/putGame':
         let update = await request.json();
+
         // first, check if there is any state - for first write there may not be, then we don't care
         if (typeof(this.data) !== 'undefined') {
+
           if (!update.versionToken) {
             return new Response("No versionToken provided.", { status: 400, statusText: "Bad request" });
           }
+
           if (update.versionToken !== this.data.versionToken) {
             return new Response("Conflict: update blocked due to versionToken mismatch.", { status: 409, statusText: "Conflict" });
           }
         }
+
         // lazy, letting durable objects do the work of uuid generation - it's fast
         update.versionToken = this.env.GAMESTORAGE.newUniqueId().toString();
         await this.state.storage.put('data', update);
         this.data = update;
+
         // broadcast via sockets - don't send to originating client
         this.wsh.broadcast(JSON.stringify(update), clientId);
         return new Response(JSON.stringify(this.data), { headers: { 'Content-Type' : 'application/json' }});
+
       case '/getGame':
         // Just serve the current value. No storage calls needed!
         this.data = await this.state.storage.get('data');
         return new Response(JSON.stringify(this.data), { headers: { 'Content-Type' : 'application/json' }});
+        
       default:
         return new Response('Not found', { status: 404 });
     }

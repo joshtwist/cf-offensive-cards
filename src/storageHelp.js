@@ -29,6 +29,11 @@ export default class StorageHelp {
     });
 
     let putResponse = await object.fetch(putRequest);
+
+    if (putResponse.status !== 200) {
+      throw new Error(await putResponse.text());
+    }
+
     let data = putResponse.json();
     return data;
   }

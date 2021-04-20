@@ -11,7 +11,8 @@ export default class Cards {
     if (this.initialized) {
       throw new Error('initializeFromSource: Cards instance already initialized');
     }
-    blackCardsText.forEach(b => this.addBlackCard(b));
+     // TODO - fix multi-card play, for now remove them
+    blackCardsText.filter(b => b.match(/_/g).length === 1).forEach(b => this.addBlackCard(b));
     whiteCardsText.forEach(w => this.addWhiteCard(w));
     this.initialized = true;
   }
